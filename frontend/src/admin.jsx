@@ -378,7 +378,7 @@ export default function Admin({ onSair }) {
               <p>Configuração e informação da área administrativa.</p>
               <div className="adm-seguranca-linha">
                 <span>Conta administrativa</span>
-                <strong>adm@smartbook.ao</strong>
+                <strong>admin@smartbook.ao</strong>
               </div>
               <div className="adm-seguranca-linha">
                 <span>Sessão</span>
