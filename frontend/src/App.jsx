@@ -6,6 +6,7 @@ import AdminLogin from "./AdminLogin";
 import ModulosSociais from "./ModulosSociais";
 import NegocioOportunidade from "./NegocioOportunidade";
 import CasaInteligente from "./CasaInteligente";
+import Grupos from "./Grupos";
 
 
   
@@ -14,18 +15,16 @@ import CasaInteligente from "./CasaInteligente";
 
 const API_URL = (
     import.meta.env.VITE_API_URL ||
-    (
-        import.meta.env.DEV
-            ? "http://127.0.0.1:8000"
-            : window.location.origin
-    )
+    (import.meta.env.DEV
+        ? "http://127.0.0.1:8000"
+        : window.location.origin)
 ).replace(/\/+$/, "");
-
 
 const MENU = [
     { id: "inicio", icon: "⌂", label: "Início" },
     { id: "perfil", icon: "♙", label: "Meu perfil" },
     { id: "amigos", icon: "♧", label: "Amigos" },
+    { id: "grupos", icon: "♧", label: "Grupos" },
     { id: "pedidos", icon: "♧", label: "Pedidos de amizade" },
     { id: "videos", icon: "▷", label: "Vídeos" },
     { id: "mensagens", icon: "✉", label: "Mensagens" },
@@ -79,12 +78,18 @@ function iniciais(nome = "SMART BOOK") {
         .toUpperCase();
 }
 
+function resolverImagem(url) {
+    if (!url) return "";
+    if (/^https?:\/\//i.test(url) || url.startsWith("data:")) return url;
+    return `${API_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+}
+
 function Avatar({ nome, foto, tamanho = "" }) {
     if (foto) {
         return (
             <img
                 className={`avatar ${tamanho}`}
-                src={foto}
+                src={resolverImagem(foto)}
                 alt={`Fotografia de ${nome || "utilizador"}`}
             />
         );
@@ -192,6 +197,12 @@ export default function App() {
     useEffect(() => {
         localStorage.setItem("smartbook-interacoes", JSON.stringify(interacoes));
     }, [interacoes]);
+
+    useEffect(() => {
+    if (window.location.pathname === "/adm") {
+        setPagina("adm-login");
+    }
+    }, []);
 
     // O backend confirma se esta sessão tem acesso ao ADM.
     useEffect(() => {
@@ -446,7 +457,7 @@ export default function App() {
               const emailConta = (conta?.email || "").toLowerCase().trim();
 
               if (emailConta === "adm@smartbook.ao")  {
-                sessionStorage.setItem("smartbook-admin.token", dados.access_token);
+                sessionStorage.setItem("smartbook-admin-token", dados.access_token);
                 window.location.replace("/adm");
                 return;
 
@@ -685,6 +696,51 @@ export default function App() {
     }
 
     // =====================================================
+    // CARREGAR FOTOGRAFIA DE PERFIL OU CAPA
+    // =====================================================
+
+    async function carregarImagemPerfil(evento, tipo) {
+        const ficheiro = evento.target.files?.[0];
+        if (!ficheiro) return;
+        if (!ficheiro.type.startsWith("image/")) {
+            mostrarMensagem("Escolhe um ficheiro de imagem válido.", "erro");
+            evento.target.value = "";
+            return;
+        }
+        if (ficheiro.size > 5 * 1024 * 1024) {
+            mostrarMensagem("A imagem não pode ultrapassar 5 MB.", "erro");
+            evento.target.value = "";
+            return;
+        }
+        const formulario = new FormData();
+        formulario.append("tipo", tipo);
+        formulario.append("ficheiro", ficheiro);
+        setAGuardarPerfil(true);
+        try {
+            const resposta = await fetch(`${API_URL}/api/profile/me/imagem`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${obterToken()}` },
+                body: formulario,
+            });
+            const dados = await lerResposta(resposta);
+            const perfilAtualizado = dados.perfil || dados;
+            setPerfil((atual) => ({ ...(atual || {}), ...perfilAtualizado }));
+            setPerfilFormulario((atual) => ({
+                ...atual,
+                foto_url: dados.foto_url || perfilAtualizado.foto_url || atual.foto_url,
+                capa_url: dados.capa_url || perfilAtualizado.capa_url || atual.capa_url,
+            }));
+            mostrarMensagem(tipo === "capa" ? "Fotografia de capa atualizada." : "Fotografia de perfil atualizada.", "sucesso");
+            await carregarPerfil();
+        } catch (erro) {
+            mostrarMensagem(`Não foi possível carregar a imagem: ${erro.message}. Confirma se o backend tem o endpoint /api/profile/me/imagem.`, "erro");
+        } finally {
+            setAGuardarPerfil(false);
+            evento.target.value = "";
+        }
+    }
+
+    // =====================================================
     // ATUALIZAR PERFIL
     // =====================================================
 
@@ -717,7 +773,15 @@ export default function App() {
 
             const dados = await lerResposta(resposta);
 
-            setPerfil(dados);
+            const perfilAtualizado = dados.perfil || dados;
+            setPerfil((atual) => ({ ...(atual || {}), ...perfilAtualizado }));
+            setPerfilFormulario((atual) => ({
+                ...atual,
+                biografia: perfilAtualizado.biografia ?? atual.biografia,
+                localizacao: perfilAtualizado.localizacao ?? atual.localizacao,
+                foto_url: perfilAtualizado.foto_url ?? atual.foto_url,
+                capa_url: perfilAtualizado.capa_url ?? atual.capa_url,
+            }));
 
             mostrarMensagem(
                 "Perfil atualizado com sucesso.",
@@ -801,28 +865,22 @@ export default function App() {
    
 // =====================================================
 // ÁREA ADMINISTRATIVA INDEPENDENTE
-// /adm utiliza autenticação própria e não depende da sessão normal.
 // =====================================================
 
 if (
     window.location.pathname === "/adm" ||
     window.location.pathname.startsWith("/adm/")
 ) {
-    const tokenAdmin = sessionStorage.getItem("smartbook-admin-token");
-
-    if (tokenAdmin) {
+    if (sessionStorage.getItem("smartbook-admin-token")) {
         return <Admin />;
     }
 
-    return (
-        <AdminLogin
-            onLogin={() => window.location.reload()}
-            onVoltar={() => {
-                sessionStorage.removeItem("smartbook-admin-token");
-                window.location.replace("/");
-            }}
-        />
-    );
+    return <AdminLogin 
+    onLogin={() => 
+        window.location.reload()}
+        onVoltar={() => window.location.href =
+    "/"}
+    />;
 }
 
 // =====================================================
@@ -1382,20 +1440,18 @@ if (aValidarSessao) {
                                                     : ""}
                                             </time>
                                         </div>
-
-                                        {publicacao.autor_id ===
-                                            utilizador.id && (
-                                            <BotaoIcone
-                                                titulo="Apagar publicação"
-                                                onClick={() =>
-                                                    apagarPublicacao(
-                                                        publicacao.id
-                                                    )
-                                                }
-                                            >
-                                                ⋯
-                                            </BotaoIcone>
-                                        )}
+                                         {String(publicacao.autor_id) === String(utilizador.id) && (
+                                                 <button
+                                                 type="button"
+                                               className="botao-apagar-publicacao"
+                                                  title="Apagar publicação"
+                                                 onClick={() => apagarPublicacao(publicacao.id)}
+                                                 >
+                                               🗑️ Apagar
+                                                 </button>
+                                                )}
+                                       
+                                        
                                     </div>
 
                                     <div className="publicacao-conteudo">
@@ -1492,7 +1548,7 @@ if (aValidarSessao) {
                             perfil?.capa_url
                                 ? {
                                     backgroundImage:
-                                        `url("${perfil.capa_url}")`,
+                                        `url("${resolverImagem(perfil.capa_url)}")`,
                                 }
                                 : {}
                         }
@@ -1847,28 +1903,40 @@ if (aValidarSessao) {
                             />
                         </label>
 
-                        <label>
-                            Endereço da fotografia de perfil
-
+                        <div className="campo-imagem-perfil">
+                            <label htmlFor="foto-perfil-upload">Fotografia de perfil</label>
+                            <div className="pré-visualizacao-imagem">
+                                <Avatar nome={nomeUtilizador} foto={perfilFormulario.foto_url || perfil?.foto_url} tamanho="avatar-perfil" />
+                            </div>
                             <input
+                                id="foto-perfil-upload"
+                                type="file"
+                                accept="image/*"
+                                onChange={(evento) => carregarImagemPerfil(evento, "perfil")}
+                            />
+                            <label htmlFor="foto-perfil-url">Ou endereço da fotografia</label>
+                            <input
+                                id="foto-perfil-url"
                                 type="url"
                                 maxLength={500}
                                 value={perfilFormulario.foto_url}
-                                onChange={(evento) =>
-                                    setPerfilFormulario({
-                                        ...perfilFormulario,
-                                        foto_url: evento.target.value,
-                                    })
-                                }
+                                onChange={(evento) => setPerfilFormulario({ ...perfilFormulario, foto_url: evento.target.value })}
                                 placeholder="https://..."
                             />
+                        </div>
 
-                            <small>
-                                O carregamento direto de fotografias
-                                do computador será integrado no módulo
-                                de multimédia.
-                            </small>
-                        </label>
+                        <div className="campo-imagem-capa">
+                            <label htmlFor="foto-capa-upload">Fotografia de capa</label>
+                            {perfilFormulario.capa_url && (
+                                <img className="pré-visualizacao-capa" src={resolverImagem(perfilFormulario.capa_url)} alt="Pré-visualização da capa" />
+                            )}
+                            <input
+                                id="foto-capa-upload"
+                                type="file"
+                                accept="image/*"
+                                onChange={(evento) => carregarImagemPerfil(evento, "capa")}
+                            />
+                        </div>
 
                         <label>
                             Endereço da fotografia de capa
@@ -2217,8 +2285,18 @@ if (aValidarSessao) {
                 return renderizarPesquisa();
 
             case "administracao":
-                // A rota administrativa independente é tratada acima em /adm.
-                return <div className="pagina-conteudo"><h2>Administração</h2><p>Abre a área administrativa em /adm.</p></div>;
+                return <Admin />;
+
+            case "adm-login":
+                return (
+                    <AdminLogin
+                        onLogin={() => setPagina("administracao")}
+                        onVoltar={() => {
+                            window.history.replaceState({}, "", "/");
+                            setPagina("login");
+                        }}
+                    />
+                );
 
             case "amigos":
             case "pedidos":
@@ -2226,6 +2304,9 @@ if (aValidarSessao) {
             case "mensagens":
             case "notificacoes":
                 return <ModulosSociais pagina={paginaAtual} utilizador={utilizador} />;
+
+            case "grupos":
+                return <Grupos />;
 
             case "negocio":
                 return <NegocioOportunidade utilizador={utilizador} />;
