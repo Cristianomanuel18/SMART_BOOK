@@ -1,22 +1,21 @@
 from pathlib import Path
+from fastapi.responses import FileResponse
 
+from app.api.admin import router as admin_router
+from app.api.auth import router as auth_router
+from app.api.caren import router as caren_router
+from app.api.friendships import router as friendships_router
+from app.api.groups import router as groups_router
+from app.api.home import router as home_router
+from app.api.messages import router as messages_router
+from app.api.notifications import router as notifications_router
+from app.api.oportunidades import router as oportunidades_router
+from app.api.posts import router as posts_router
+from app.api.profile import router as profile_router
+from app.api.videos import router as videos_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-
-from app.api.auth import router as auth_router
-from app.api.posts import router as posts_router
-from app.api.friendships import router as friendships_router
-from app.api.messages import router as messages_router
-from app.api.notifications import router as notifications_router
-from app.api.videos import router as videos_router
-from app.api.profile import router as profile_router
-from app.api.caren import router as caren_router
-from app.api.home import router as home_router
-from app.api.admin import router as admin_router
-from app.api.oportunidades import router as oportunidades_router
-from app.api.groups import router as groups_router
-
 
 # ============================================================
 # APLICAÇÃO
@@ -42,6 +41,8 @@ PASTA_MEDIA = RAIZ_PROJETO / "media"
 PASTA_IMAGENS_PERFIS = PASTA_MEDIA / "perfis"
 PASTA_IMAGENS_GRUPOS = PASTA_MEDIA / "grupos"
 PASTA_VIDEOS = PASTA_MEDIA / "videos"
+PASTA_FRONTEND = RAIZ_PROJETO / "frontend" / "dist"
+FICHEIRO_INDEX = PASTA_FRONTEND / "index.html"
 
 for pasta in (
     PASTA_IMAGENS_PERFIS,
@@ -157,3 +158,13 @@ def informacoes():
             "videos",
         ],
     }
+# ============================================================
+# FRONTEND REACT — SMART BOOK
+# ============================================================
+
+if PASTA_FRONTEND.is_dir():
+    app.mount(
+        "/",
+        StaticFiles(directory=str(PASTA_FRONTEND), html=True),
+        name="frontend",
+    )
