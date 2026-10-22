@@ -126,14 +126,22 @@ app.include_router(groups_router)
 # INFORMAÇÕES DO SISTEMA
 # ============================================================
 
-@app.get("/")
+
+@app.get("/", include_in_schema=False)
 def inicio():
+    if FICHEIRO_INDEX.is_file():
+        return FileResponse(str(FICHEIRO_INDEX))
+
     return {
         "nome": "SMART BOOK",
         "criador": "Cristiano Manzo",
-        "mensagem": "API da rede social SMART BOOK",
+        "mensagem": (
+            "Frontend não encontrado. "
+            "Verifica a compilação do React."
+        ),
         "estado": "online",
     }
+
 
 
 @app.get("/api/health")
@@ -158,6 +166,21 @@ def informacoes():
             "videos",
         ],
     }
+
+# ============================================================
+# FRONTEND REACT — SMART BOOK
+# ============================================================
+
+if PASTA_FRONTEND.is_dir():
+    app.mount(
+        "/",
+        StaticFiles(
+            directory=str(PASTA_FRONTEND),
+            html=True,
+        ),
+        name="frontend",
+    )
+
 # ============================================================
 # FRONTEND REACT — SMART BOOK
 # ============================================================
