@@ -12,7 +12,15 @@ import CasaInteligente from "./CasaInteligente";
 
 
 
-const API_URL = (import.meta.env.VITE_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
+const API_URL = (
+    import.meta.env.VITE_API_URL ||
+    (
+        import.meta.env.DEV
+            ? "http://127.0.0.1:8000"
+            : window.location.origin
+    )
+).replace(/\/+$/, "");
+
 
 const MENU = [
     { id: "inicio", icon: "⌂", label: "Início" },
