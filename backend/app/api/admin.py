@@ -1,23 +1,22 @@
 
 import os
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from datetime import datetime, timedelta, timezone
 
 import jwt
+from app.database.connection import obter_sessao
+from app.models.user import User
+from app.security.auth import (
+    JWT_ALGORITHM,
+    JWT_SECRET_KEY,
+    obter_token,
+    validar_token_acesso,
+    verificar_password,
+)
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-
-from app.database.connection import obter_sessao
-from app.models.user import User
-from app.security.auth import (
-    verificar_password,
-    validar_token_acesso,
-    obter_token,
-    JWT_SECRET_KEY,
-    JWT_ALGORITHM,
-)
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
 load_dotenv(ROOT_DIR / ".env", override=True)
@@ -119,7 +118,7 @@ def login_adm(
             detail="Credenciais administrativas inválidas.",
         )
 
-    agora = datetime.now(timezone.utc)
+    agora = datetime.now(UTC)
 
     token = jwt.encode(
         {
@@ -186,7 +185,7 @@ def dashboard(
         "utilizadores_suspensos": suspensos,
         "administradores": administradores,
         "administrador_atual": admin.nome_completo,
-        "data_servidor": datetime.now(timezone.utc).isoformat(),
+        "data_servidor": datetime.now(UTC).isoformat(),
     }
 
 

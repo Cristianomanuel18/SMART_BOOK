@@ -1,6 +1,5 @@
-from sqlalchemy.orm import Session
-
 from app.models import Notificacao
+from sqlalchemy.orm import Session
 
 
 def criar_notificacao(

@@ -1,5 +1,6 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
+from app.database.connection import Base
 from sqlalchemy import (
     DateTime,
     ForeignKey,
@@ -8,8 +9,6 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
-
-from app.database.connection import Base
 
 
 class Profile(Base):
@@ -43,7 +42,7 @@ class Profile(Base):
 
     data_atualizacao: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
         nullable=False,
     )

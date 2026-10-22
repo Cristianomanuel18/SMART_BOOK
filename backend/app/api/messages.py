@@ -1,15 +1,13 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
+from app.database.connection import get_db
+from app.models import Mensagem, PedidoAmizade, User
+from app.schemas.messages import CriarMensagem
+from app.security.auth import obter_token, validar_token_acesso
+from app.services.notifications import notificar_mensagem
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
-
-from app.database.connection import get_db
-from app.models import User, Mensagem, PedidoAmizade
-from app.security.auth import obter_token, validar_token_acesso
-from app.schemas.messages import CriarMensagem
-from app.services.notifications import notificar_mensagem
-
 
 router = APIRouter(
     prefix="/api/mensagens",
@@ -224,7 +222,7 @@ def enviar_mensagem(
         destinatario_id=destinatario.id,
         conteudo=conteudo,
         lida=False,
-        data_criacao=datetime.now(timezone.utc),
+        data_criacao=datetime.now(UTC),
     )
 
     try:
@@ -460,7 +458,7 @@ def listar_conversas(
     resultado.sort(
         key=lambda conversa: (
             conversa["ultima_mensagem"]["data_criacao"]
-            or datetime.min.replace(tzinfo=timezone.utc)
+            or datetime.min.replace(tzinfo=UTC)
         ),
         reverse=True,
     )

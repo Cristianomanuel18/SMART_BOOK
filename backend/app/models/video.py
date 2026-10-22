@@ -1,5 +1,6 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
+from app.database.connection import Base
 from sqlalchemy import (
     DateTime,
     ForeignKey,
@@ -8,8 +9,6 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
-
-from app.database.connection import Base
 
 
 class Video(Base):
@@ -61,7 +60,7 @@ class Video(Base):
 
     data_criacao: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
         index=True,
     )

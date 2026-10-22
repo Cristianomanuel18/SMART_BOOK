@@ -1,19 +1,17 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
+from app.database.connection import Base
 from sqlalchemy import (
+    JSON,
     Boolean,
     DateTime,
     ForeignKey,
     Integer,
-    JSON,
     String,
     Text,
     UniqueConstraint,
 )
 from sqlalchemy.orm import Mapped, mapped_column
-
-from app.database.connection import Base
-
 
 # ============================================================
 # SMART BOOK — CASA INTELIGENTE
@@ -22,7 +20,7 @@ from app.database.connection import Base
 
 
 def agora_utc():
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 # ============================================================

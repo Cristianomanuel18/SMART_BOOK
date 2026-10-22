@@ -1,9 +1,8 @@
-from datetime import datetime, timezone
-
-from sqlalchemy import Boolean, DateTime, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from datetime import UTC, datetime
 
 from app.database.connection import Base
+from sqlalchemy import Boolean, DateTime, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class User(Base):
@@ -53,6 +52,6 @@ class User(Base):
 
     data_registo: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )

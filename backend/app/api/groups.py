@@ -1,26 +1,15 @@
-from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, status
+import uuid
+from pathlib import Path
+
+from app.database.connection import obter_sessao
+from app.models.group import Grupo, MensagemGrupo, ParticipanteGrupo
+from app.models.user import User
+from app.security.auth import obter_token, validar_token_acesso
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-
-from app.database.connection import obter_sessao
-from app.models.user import User
-from app.models.group import Grupo, ParticipanteGrupo, MensagemGrupo
-from app.security.auth import obter_token, validar_token_acesso
-import uuid
-import uuid
-from pathlib import Path
-
-from fastapi import UploadFile, File, Form
-
-from pathlib import Path
-
-from fastapi import UploadFile, File
-
-from fastapi.staticfiles import StaticFiles
-
 
 router = APIRouter(
     prefix="/api/grupos",

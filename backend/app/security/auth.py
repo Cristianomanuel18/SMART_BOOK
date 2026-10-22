@@ -1,18 +1,14 @@
 
 import os
-
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import jwt
-
 from dotenv import load_dotenv
-from jwt.exceptions import InvalidTokenError
-from pwdlib import PasswordHash
-
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-
+from jwt.exceptions import InvalidTokenError
+from pwdlib import PasswordHash
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
 
@@ -60,7 +56,7 @@ def criar_token_acesso(
 ) -> str:
     """Cria um token JWT com validade limitada."""
 
-    agora = datetime.now(timezone.utc)
+    agora = datetime.now(UTC)
 
     payload = {
         "sub": str(utilizador_id),

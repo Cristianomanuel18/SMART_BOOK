@@ -1,26 +1,22 @@
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import or_
-from sqlalchemy.orm import Session
-
 from app.database.connection import obter_sessao
 from app.models.user import User
-
 from app.schemas.auth import (
-    RegistoUtilizador,
     LoginUtilizador,
+    RegistoUtilizador,
     RespostaAutenticacao,
     UtilizadorPublico,
 )
-
 from app.security.auth import (
-    gerar_hash_password,
-    verificar_password,
     criar_token_acesso,
-    validar_token_acesso,
+    gerar_hash_password,
     obter_token,
+    validar_token_acesso,
+    verificar_password,
 )
-
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import or_
+from sqlalchemy.orm import Session
 
 router = APIRouter(
     prefix="/api/auth",

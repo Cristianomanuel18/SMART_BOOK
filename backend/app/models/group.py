@@ -3,8 +3,9 @@
 # Criado por Cristiano Manzo
 # ============================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
+from app.database.connection import Base
 from sqlalchemy import (
     DateTime,
     ForeignKey,
@@ -13,11 +14,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
 )
-
 from sqlalchemy.orm import Mapped, mapped_column
-
-from app.database.connection import Base
-
 
 # ============================================================
 # GRUPOS
@@ -52,7 +49,7 @@ class Grupo(Base):
 
     data_criacao: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
 
@@ -107,7 +104,7 @@ class ParticipanteGrupo(Base):
 
     data_entrada: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
     )
 
@@ -147,7 +144,7 @@ class MensagemGrupo(Base):
 
     data_criacao: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
         index=True,
     )

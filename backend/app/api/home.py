@@ -1,30 +1,26 @@
 
-import os
 import json
-import urllib.request
+import os
 import urllib.error
-
-from datetime import datetime, timezone
-from typing import Any, Literal
-
-from dotenv import load_dotenv
+import urllib.request
+from datetime import UTC, datetime
 from pathlib import Path
-
-from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
+from typing import Any, Literal
 
 from app.database.connection import obter_sessao
 from app.models import (
-    User,
-    Casa,
-    DivisaoCasa,
-    DispositivoInteligente,
     AutomacaoCasa,
+    Casa,
+    DispositivoInteligente,
+    DivisaoCasa,
     HistoricoCasa,
+    User,
 )
 from app.security.auth import obter_token, validar_token_acesso
-
+from dotenv import load_dotenv
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
 # ============================================================
 # CONFIGURAÇÃO
@@ -986,7 +982,7 @@ def comandar_dispositivo(
             mensagem = "Estado interno atualizado. Nenhum comando físico foi enviado."
             historico.resultado = mensagem
 
-        agora = datetime.now(timezone.utc).isoformat()
+        agora = datetime.now(UTC).isoformat()
         estado["ultimo_comando"] = dados.comando
         estado["ultima_execucao"] = agora
         if dados.comando == "ligar":
@@ -1165,7 +1161,7 @@ def executar_automacao_interna(
         if comando in ("pausar", "retomar", "parar"):
             estado["reproducao"] = {"pausar": "pausada", "retomar": "a reproduzir", "parar": "parada"}[comando]
         estado["ultimo_comando"] = comando
-        estado["ultima_execucao"] = datetime.now(timezone.utc).isoformat()
+        estado["ultima_execucao"] = datetime.now(UTC).isoformat()
         dispositivo.estado_conhecido = estado
         db.add(HistoricoCasa(casa_id=casa_id, dispositivo_id=dispositivo.id, utilizador_id=utilizador.id, origem="automacao", comando=comando, parametros=parametros, resultado="Ação da automação processada; em modo manual, apenas o estado interno foi atualizado.", estado_execucao="concluido"))
         resultados.append({"dispositivo_id": dispositivo.id, "comando": comando, "sucesso": True})

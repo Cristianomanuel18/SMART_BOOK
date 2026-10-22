@@ -1,10 +1,9 @@
 
-from datetime import datetime, timezone
-
-from sqlalchemy import DateTime, ForeignKey, Integer, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from datetime import UTC, datetime
 
 from app.database.connection import Base
+from sqlalchemy import DateTime, ForeignKey, Integer, Text
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class Post(Base):
@@ -29,7 +28,7 @@ class Post(Base):
 
     data_criacao: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         nullable=False,
         index=True,
     )

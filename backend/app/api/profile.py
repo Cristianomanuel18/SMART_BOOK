@@ -1,16 +1,5 @@
-from pathlib import Path
 import uuid
-
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException,
-    status,
-    UploadFile,
-    File,
-    Form,
-)
-from sqlalchemy.orm import Session
+from pathlib import Path
 
 from app.database.connection import obter_sessao
 from app.models import Profile, User
@@ -22,7 +11,16 @@ from app.security.auth import (
     obter_token,
     validar_token_acesso,
 )
-
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    UploadFile,
+    status,
+)
+from sqlalchemy.orm import Session
 
 router = APIRouter(
     prefix="/api/profile",

@@ -1,5 +1,6 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
+from app.database.connection import Base
 from sqlalchemy import (
     DateTime,
     ForeignKey,
@@ -10,11 +11,9 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.database.connection import Base
-
 
 def agora_utc():
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class OportunidadeNegocio(Base):

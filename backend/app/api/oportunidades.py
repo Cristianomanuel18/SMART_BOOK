@@ -1,5 +1,8 @@
 from typing import Literal
 
+from app.database.connection import obter_sessao
+from app.models import OportunidadeNegocio, User
+from app.security.auth import obter_token, validar_token_acesso
 from fastapi import (
     APIRouter,
     Depends,
@@ -10,11 +13,6 @@ from fastapi import (
 from pydantic import BaseModel, Field
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
-
-from app.database.connection import obter_sessao
-from app.models import OportunidadeNegocio, User
-from app.security.auth import obter_token, validar_token_acesso
-
 
 router = APIRouter(
     prefix="/api/negocio-oportunidade",

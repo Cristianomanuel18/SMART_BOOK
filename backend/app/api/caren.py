@@ -4,14 +4,12 @@ from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
-
 from app.security.auth import (
     obter_token,
     validar_token_acesso,
 )
-
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
 
 # ============================================================
 # SMART BOOK — CAREN IA

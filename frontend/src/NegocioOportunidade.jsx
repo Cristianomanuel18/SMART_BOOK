@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import "./modulos-novos.css";
 
-const API = "http://127.0.0.1:8000/api/negocio-oportunidade";
+const SERVIDOR = import.meta.env.VITE_API_URL || (
+  import.meta.env.DEV
+    ? "http://127.0.0.1:8000"
+    : window.location.origin
+);
+
+const API = `${SERVIDOR}/api/negocio-oportunidade`;
 const VAZIO = {
   tipo: "profissional", nome: "", area: "", habilidades: "", experiencia: "",
   escolaridade: "", localizacao: "", telefone: "", descricao: "", disponibilidade: "",

@@ -1,7 +1,9 @@
-import os
 import uuid
 from pathlib import Path
 
+from app.database.connection import obter_sessao
+from app.models import User, Video
+from app.security.auth import obter_token, validar_token_acesso
 from fastapi import (
     APIRouter,
     Depends,
@@ -11,11 +13,6 @@ from fastapi import (
     UploadFile,
 )
 from sqlalchemy.orm import Session
-
-from app.database.connection import obter_sessao
-from app.models import User, Video
-from app.security.auth import obter_token, validar_token_acesso
-
 
 router = APIRouter(
     prefix="/api/videos",

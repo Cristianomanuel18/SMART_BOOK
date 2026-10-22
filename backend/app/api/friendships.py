@@ -1,19 +1,17 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Literal
 
+from app.database.connection import get_db
+from app.models import PedidoAmizade, User
+from app.security.auth import obter_token, validar_token_acesso
+from app.services.notifications import (
+    notificar_amizade_aceite,
+    notificar_pedido_amizade,
+)
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
-
-from app.database.connection import get_db
-from app.models import User, PedidoAmizade
-from app.security.auth import obter_token, validar_token_acesso
-from app.services.notifications import (
-    notificar_pedido_amizade,
-    notificar_amizade_aceite,
-)
-
 
 router = APIRouter(
     prefix="/api/amizades",
@@ -400,7 +398,7 @@ def responder_pedido_amizade(
 
     try:
         pedido.estado = dados.estado
-        pedido.data_resposta = datetime.now(timezone.utc)
+        pedido.data_resposta = datetime.now(UTC)
 
         if dados.estado == "aceite":
             remetente = (

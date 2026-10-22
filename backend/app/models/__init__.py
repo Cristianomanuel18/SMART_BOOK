@@ -1,34 +1,33 @@
-from app.models.user import User
-from app.models.post import Post
-from app.models.profile import Profile
 from app.models.friendship import PedidoAmizade
 from app.models.message import Mensagem
 from app.models.notification import Notificacao
+from app.models.post import Post
+from app.models.profile import Profile
+from app.models.user import User
 from app.models.video import Video
 
 __all__ = [
-    "User",
-    "Post",
-    "Profile",
-    "PedidoAmizade",
+    "AutomacaoCasa",
+    "Casa",
+    "DispositivoInteligente",
+    "DivisaoCasa",
+    "HistoricoCasa",
     "Mensagem",
     "Notificacao",
+    "PedidoAmizade",
+    "Post",
+    "Profile",
+    "User",
     "Video",
-    "Casa",
-    "DivisaoCasa",
-    "DispositivoInteligente",
-    "AutomacaoCasa",
-    "HistoricoCasa",
 ]
 
 from app.models.home import (
-    Casa,
-    DivisaoCasa,
-    DispositivoInteligente,
     AutomacaoCasa,
+    Casa,
+    DispositivoInteligente,
+    DivisaoCasa,
     HistoricoCasa,
 )
-
 from app.models.oportunidade import OportunidadeNegocio
 
 __all__ = list(dict.fromkeys([
@@ -38,8 +37,8 @@ __all__ = list(dict.fromkeys([
 
 from app.models.group import (
     Grupo,
-    ParticipanteGrupo,
     MensagemGrupo,
+    ParticipanteGrupo,
 )
 
 __all__ = list(dict.fromkeys([

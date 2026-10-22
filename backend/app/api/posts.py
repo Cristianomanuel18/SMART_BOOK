@@ -1,12 +1,11 @@
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
-
 from app.database.connection import obter_sessao
 from app.models.post import Post
 from app.models.user import User
 from app.schemas.posts import CriarPublicacao
 from app.security.auth import obter_token, validar_token_acesso
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.orm import Session
 
 router = APIRouter(
     prefix="/api/posts",
@@ -138,4 +137,3 @@ def apagar_publicacao(
     db.delete(publicacao)
     db.commit()
 
-    return None

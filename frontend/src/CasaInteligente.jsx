@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import "./modulos-novos.css";
 
-const API = "http://127.0.0.1:8000/api/casa-inteligente";
+const SERVIDOR = import.meta.env.VITE_API_URL || (
+  import.meta.env.DEV
+    ? "http://127.0.0.1:8000"
+    : window.location.origin
+);
+
+const API = `${SERVIDOR}/api/casa-inteligente`;
 async function ler(res) {
   const txt = await res.text(); let data = {};
   try { data = txt ? JSON.parse(txt) : {}; } catch { data = { detail: txt }; }
