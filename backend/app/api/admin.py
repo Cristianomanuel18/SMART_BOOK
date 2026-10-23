@@ -74,7 +74,6 @@ def exigir_admin(
 
     return admin
 
-
 @router.post("/login")
 def login_adm(
     dados: LoginADM,
@@ -89,6 +88,7 @@ def login_adm(
     email = dados.email.strip().lower()
 
     if email != ADMIN_EMAIL:
+        print("[ADM DEBUG] O e-mail recebido não corresponde ao configurado.")
         raise HTTPException(
             status_code=401,
             detail="Credenciais administrativas inválidas.",
@@ -100,18 +100,34 @@ def login_adm(
         .first()
     )
 
+    if not admin:
+        print("[ADM DEBUG] Conta não encontrada.")
+        raise HTTPException(
+            status_code=401,
+            detail="Credenciais administrativas inválidas.",
+        )
+
+    password_env_ok = verificar_password(
+        dados.password,
+        ADMIN_PASSWORD_HASH,
+    )
+
+    password_db_ok = verificar_password(
+        dados.password,
+        admin.password_hash,
+    )
+
+    print("[ADM DEBUG] Conta encontrada:", admin.id)
+    print("[ADM DEBUG] Conta ativa:", admin.ativo)
+    print("[ADM DEBUG] É administrador:", admin.administrador)
+    print("[ADM DEBUG] Palavra-passe válida no .env:", password_env_ok)
+    print("[ADM DEBUG] Palavra-passe válida na conta:", password_db_ok)
+
     if (
-        not admin
-        or not admin.ativo
+        not admin.ativo
         or not admin.administrador
-        or not verificar_password(
-            dados.password,
-            ADMIN_PASSWORD_HASH,
-        )
-        or not verificar_password(
-            dados.password,
-            admin.password_hash,
-        )
+        or not password_env_ok
+        or not password_db_ok
     ):
         raise HTTPException(
             status_code=401,

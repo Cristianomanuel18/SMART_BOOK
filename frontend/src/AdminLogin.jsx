@@ -26,15 +26,19 @@ export default function AdminLogin({ onLogin, onVoltar }) {
         setCarregando(true);
 
         try {
+            console.log("[ADM] URL:", `${API_URL}/login`);
+console.log("[ADM] E-mail enviado:", email.trim().toLowerCase());
+console.log("[ADM] Palavra-passe preenchida:", password.length > 0);
+console.log("[ADM] Comprimento da palavra-passe:", password.length);
             const resposta = await fetch(`${API_URL}/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    email: email.trim().toLowerCase(),
-                    password,
-                }),
+               body: JSON.stringify({
+    email: email.trim().toLowerCase(),
+    password,
+}),
             });
 
             const texto = await resposta.text();
